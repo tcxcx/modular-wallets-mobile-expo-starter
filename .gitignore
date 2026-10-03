@@ -1,0 +1,10 @@
+node_modules/
+.env*
+!.env.example
+.expo/
+build/
+.gradle/
+Pods/
+*.keystore
+*.mobileprovision
+.DS_Store
