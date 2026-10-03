@@ -1,5 +1,7 @@
 package com.example.circlemodularwallets
 
+import android.content.pm.PackageManager
+import android.os.Build
 import com.circle.modularwallets.core.accounts.WebAuthnAccount
 import com.circle.modularwallets.core.accounts.WebAuthnCredential
 import com.circle.modularwallets.core.accounts.toWebAuthnAccount
@@ -11,12 +13,36 @@ import expo.modules.kotlin.exception.CodedException
 import expo.modules.kotlin.functions.Coroutine
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
+import java.security.MessageDigest
 
 class CircleModularWalletsNativeModule : Module() {
   private var account: WebAuthnAccount? = null
 
   override fun definition() = ModuleDefinition {
     Name("CircleModularWalletsNative")
+
+    AsyncFunction("rpcHeaders") {
+      val context = appContext.reactContext ?: throw CircleNativeAppMetadataException()
+      @Suppress("DEPRECATION")
+      val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        context.packageManager.getPackageInfo(
+          context.packageName,
+          PackageManager.GET_SIGNING_CERTIFICATES
+        ).signingInfo?.apkContentsSigners
+      } else {
+        context.packageManager.getPackageInfo(
+          context.packageName,
+          PackageManager.GET_SIGNATURES
+        ).signatures
+      }
+      val certificate = signatures?.firstOrNull() ?: throw CircleNativeAppMetadataException()
+      val fingerprint = MessageDigest.getInstance("SHA-256")
+        .digest(certificate.toByteArray())
+        .joinToString(":") { byte -> "%02X".format(byte.toInt() and 0xff) }
+      mapOf(
+        "X-AppInfo" to "platform=android;version=1.5.3;package=${context.packageName};signature=$fingerprint"
+      )
+    }
 
     AsyncFunction("register") Coroutine { clientKey: String, clientUrl: String, userName: String ->
       val activity = appContext.throwingActivity
@@ -107,4 +133,8 @@ class CircleModularWalletsNativeModule : Module() {
 
 private class CircleNativeCredentialNotHydratedException : CodedException(
   "Circle native passkey account is not hydrated. Register or reconnect the credential before signing."
+)
+
+private class CircleNativeAppMetadataException : CodedException(
+  "The app signing certificate is unavailable. Build and sign a native development client."
 )

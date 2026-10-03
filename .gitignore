@@ -8,3 +8,8 @@ Pods/
 *.keystore
 *.mobileprovision
 .DS_Store
+dist/
+ios/
+android/
+!modules/**/ios/
+!modules/**/android/

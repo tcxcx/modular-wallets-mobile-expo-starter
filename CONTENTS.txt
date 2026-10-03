@@ -1,11 +1,14 @@
 .env.example
 .gitignore
+App.tsx
 LICENSE
 README.md
-app.config.example.ts
+app.config.ts
 check.py
 domain/.well-known/apple-app-site-association
 domain/.well-known/assetlinks.json
+eas.json
+index.ts
 modules/circle-modular-wallets/android/build.gradle
 modules/circle-modular-wallets/android/src/main/AndroidManifest.xml
 modules/circle-modular-wallets/android/src/main/java/com/example/circlemodularwallets/CircleModularWalletsNativeModule.kt
@@ -14,6 +17,10 @@ modules/circle-modular-wallets/index.ts
 modules/circle-modular-wallets/ios/CircleModularWalletsNative.podspec
 modules/circle-modular-wallets/ios/CircleModularWalletsNativeModule.swift
 modules/circle-modular-wallets/package.json
+package-lock.json
 package.json
 src/native-passkey.ts
+src/wallet-input.ts
 src/wallet.ts
+tests/wallet.test.ts
+tsconfig.json

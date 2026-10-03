@@ -1,7 +1,7 @@
 import type { Hex } from 'viem';
 import { hashMessage, hashTypedData } from 'viem';
 import type { WebAuthnAccount } from 'viem/account-abstraction';
-import { parseCredentialPublicKey, parsePublicKey, serializePublicKey } from 'webauthn-p256';
+import { normalizePublicKey, normalizeNativeSignature } from './wallet-input';
 
 import {
   type CircleModularWalletsNativeModule,
@@ -84,33 +84,12 @@ function assertExpectedRpId(actual: string, expected: string): void {
   }
 }
 
-function bytesFromHex(value: string): Uint8Array {
-  const hex = value.startsWith('0x') ? value.slice(2) : value;
-  if (hex.length === 0 || hex.length % 2 !== 0 || !/^[0-9a-f]+$/i.test(hex)) {
-    throw new Error('Circle native SDK returned an invalid public key');
-  }
-  return Uint8Array.from(hex.match(/.{2}/g)!.map(byte => Number.parseInt(byte, 16)));
-}
-
-function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  return Uint8Array.from(bytes).buffer;
-}
-
 function ensureHex(value: string, label: string): Hex {
   const hex = value.startsWith('0x') ? value : `0x${value}`;
   if (!/^0x[0-9a-f]+$/i.test(hex)) {
     throw new Error(`Circle native SDK returned an invalid ${label}`);
   }
   return hex as Hex;
-}
-
-async function normalizePublicKey(value: string): Promise<Hex> {
-  const bytes = bytesFromHex(value);
-  const parsed =
-    bytes.length === 64 || bytes.length === 65
-      ? parsePublicKey(bytes)
-      : await parseCredentialPublicKey(toArrayBuffer(bytes));
-  return ensureHex(serializePublicKey(parsed, { compressed: true }), 'public key');
 }
 
 async function normalizeCredential(
@@ -136,6 +115,15 @@ export async function registerOfficialCircleNativeCredential(
     () => module.register(input.clientKey, input.clientUrl, input.userName),
     [input.clientKey]
   );
+  return normalizeCredential(credential, input.expectedRpId);
+}
+
+export async function loginOfficialCircleNativeCredential(
+  input: CircleNativeConnectionInput,
+  nativeModule = resolveCircleModularWalletsNativeModule()
+): Promise<OfficialCircleNativeCredential> {
+  const module = requireNativeModule(nativeModule);
+  const credential = await callNative('passkey reconnect', () => module.login(input.clientKey, input.clientUrl), [input.clientKey]);
   return normalizeCredential(credential, input.expectedRpId);
 }
 
@@ -206,8 +194,10 @@ export function createOfficialCircleNativeWebAuthnAccount(
   const module = requireNativeModule(nativeModule);
   const sign: WebAuthnAccount['sign'] = async ({ hash }) => {
     const result = await callNative('passkey signing', () => module.sign(hash));
+    if (result.raw.id !== credential.id) throw new Error('A different passkey was selected. Reconnect your wallet.');
+    if (!result.webauthn.userVerificationRequired) throw new Error('The passkey signature requires user verification.');
     return {
-      signature: ensureHex(result.signature, 'signature'),
+      signature: normalizeNativeSignature(result.signature),
       webauthn: {
         ...result.webauthn,
         authenticatorData: ensureHex(result.webauthn.authenticatorData, 'authenticator data'),

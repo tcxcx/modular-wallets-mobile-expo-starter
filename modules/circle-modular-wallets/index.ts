@@ -44,6 +44,7 @@ export type CircleNativeSignResult = {
 };
 
 export type CircleModularWalletsNativeModule = {
+  rpcHeaders(): Promise<Record<string, string>>;
   register(clientKey: string, clientUrl: string, userName: string): Promise<CircleNativeCredential>;
   login(clientKey: string, clientUrl: string): Promise<CircleNativeCredential>;
   sign(messageHash: string): Promise<CircleNativeSignResult>;

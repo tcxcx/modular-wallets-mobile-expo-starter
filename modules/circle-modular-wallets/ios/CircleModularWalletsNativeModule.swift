@@ -1,11 +1,19 @@
 import CircleModularWalletsCore
 import ExpoModulesCore
+import Foundation
 
 public final class CircleModularWalletsNativeModule: Module {
   private var account: WebAuthnAccount?
 
   public func definition() -> ModuleDefinition {
     Name("CircleModularWalletsNative")
+
+    AsyncFunction("rpcHeaders") { () throws -> [String: String] in
+      guard let bundleId = Bundle.main.bundleIdentifier, !bundleId.isEmpty else {
+        throw CircleNativeAppMetadataException()
+      }
+      return ["X-AppInfo": "platform=ios;version=1.5.0;bundleid=\(bundleId)"]
+    }
 
     AsyncFunction("register") {
       (clientKey: String, clientUrl: String, userName: String) async throws -> [String: Any] in
@@ -102,5 +110,11 @@ public final class CircleModularWalletsNativeModule: Module {
 private final class CircleNativeCredentialNotHydratedException: Exception {
   override var reason: String {
     "Circle native passkey account is not hydrated. Register or reconnect the credential before signing."
+  }
+}
+
+private final class CircleNativeAppMetadataException: Exception {
+  override var reason: String {
+    "The app bundle identifier is unavailable. Build and sign a native development client."
   }
 }
