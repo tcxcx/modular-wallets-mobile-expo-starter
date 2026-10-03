@@ -62,4 +62,4 @@ The archive has been checked for excluded private integration and secrets; nativ
 - Circle Android SDK: https://github.com/circlefin/modularwallets-android-sdk
 - Expo local native modules: https://docs.expo.dev/modules/get-started/
 
-Third-party dependencies retain their licenses. No license grant is currently specified for this starter. Third-party SDK licensing is independent.
+Third-party dependencies retain their licenses. This starter is licensed under Apache 2.0; see LICENSE. Third-party SDK licensing is independent.

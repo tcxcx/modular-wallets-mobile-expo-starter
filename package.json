@@ -1,0 +1,19 @@
+{
+  "name": "modular-wallets-mobile-expo-starter",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "scripts": {
+    "check": "python3 check.py"
+  },
+  "dependencies": {
+    "@circle-fin/modular-wallets-core": "1.0.13",
+    "viem": "2.38.3",
+    "webauthn-p256": "^0.0.10"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "expo-modules-core": "*",
+    "react-native": "*"
+  }
+}

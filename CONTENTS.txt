@@ -1,5 +1,6 @@
 .env.example
 .gitignore
+LICENSE
 README.md
 app.config.example.ts
 check.py
@@ -13,5 +14,6 @@ modules/circle-modular-wallets/index.ts
 modules/circle-modular-wallets/ios/CircleModularWalletsNative.podspec
 modules/circle-modular-wallets/ios/CircleModularWalletsNativeModule.swift
 modules/circle-modular-wallets/package.json
+package.json
 src/native-passkey.ts
 src/wallet.ts

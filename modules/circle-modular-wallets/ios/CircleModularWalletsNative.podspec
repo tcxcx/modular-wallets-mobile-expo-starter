@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.version        = '1.0.0'
   s.summary        = 'Expo bridge for the official Circle Modular Wallets mobile SDK'
   s.description    = 'Native passkey registration, reconnect, and signing through the official Circle SDK.'
-  s.license        = { :type => 'UNLICENSED' }
+  s.license        = { :type => 'Apache-2.0' }
   s.author         = 'Wallet Starter'
   s.homepage       = 'https://github.com/circlefin/modularwallets-ios-sdk'
   s.platforms      = { :ios => '16.0' }
